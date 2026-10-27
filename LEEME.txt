@@ -1,0 +1,36 @@
+MUSEO DE ALHONDRA - archivos para publicar en Vercel
+
+Contenido:
+  index.html          la página del museo (todo el código)
+  fotos/              las 18 fotos de los cuadros y cielo.jpg (la foto que se forma en el cielo)
+  musica/             Vivir mi vida - Marc Anthony
+  vercel.json         configuración (sitio estático, sin build)
+
+Importante: index.html debe quedar siempre junto a las carpetas fotos y musica.
+
+OPCIÓN A - Con GitHub (sin instalar nada)
+  1. En github.com crea un repositorio nuevo (por ejemplo: museo-alhondra).
+  2. Pulsa "uploading an existing file" y arrastra TODO el contenido de esta carpeta
+     (index.html, vercel.json, fotos, musica). Pulsa "Commit changes".
+  3. En vercel.com > Add New > Project > importa ese repositorio.
+  4. Framework Preset: Other. No cambies nada más y pulsa Deploy.
+  5. Vercel te da un link tipo https://museo-alhondra.vercel.app
+
+OPCIÓN B - Con la terminal (Vercel CLI)
+  1. Instala Node.js y luego:  npm i -g vercel
+  2. Entra a esta carpeta:      cd museo-alhondra
+  3. Publica:                   vercel --prod
+  4. Responde las preguntas con Enter (acepta lo que sugiere).
+
+Después de publicar:
+  - Ese link de Vercel es el que debe ir en el QR (pídele a Claude un QR nuevo con el link).
+  - Para cambiar una foto: reemplaza el archivo en fotos/ con el mismo nombre (01.jpg ... 18.jpg)
+    y vuelve a subir / hacer commit; Vercel actualiza solo.
+  - Títulos de los cuadros: busca "DEF_CAPS" en index.html.
+  - Mensajes del equipo: busca "NPC_DEF".   Dedicatoria: busca "msg3".
+
+Para verlo en tu computadora antes de publicar no basta con doble clic
+(el navegador bloquea fotos y música en archivos sueltos). Usa:
+  cd museo-alhondra
+  python -m http.server 8000
+  y abre http://localhost:8000
