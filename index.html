@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101C3B">
+<title>Nuestro pequeño universo ♡</title>
+<style>
+:root{--night:#101C3B;--wine:#23365F;--rose:#BFC8D8;--cream:#F4F6FA;--gold:#BFC8D8;--wood:#26385A}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--night);font-family:Georgia,'Times New Roman',serif;color:var(--cream)}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+button,input,textarea{font:inherit}button{cursor:pointer}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:3}
+.brand{position:absolute;top:max(16px,env(safe-area-inset-top));left:18px;max-width:65%;text-shadow:0 2px 12px #000;font-size:clamp(17px,2.8vw,29px)}
+.brand small{display:block;font:10px Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-top:5px}
+.pill{pointer-events:auto;border:1px solid #bfc8d855;background:#101c3be0;color:var(--cream);border-radius:99px;padding:10px 14px;backdrop-filter:blur(8px)}
+#topActions{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:55%}
+#help{position:absolute;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);background:#101c3be0;border:1px solid #bfc8d855;border-radius:14px;padding:10px 15px;text-align:center;font:12px/1.5 Arial,sans-serif;width:max-content;max-width:92%;color:#F4F6FA}
+#crosshair{position:absolute;left:50%;top:50%;width:8px;height:8px;border:1px solid #ffe9c9;border-radius:50%;transform:translate(-50%,-50%);opacity:.8}
+#toast{position:absolute;left:50%;top:16%;transform:translateX(-50%);background:#101c3bf0;border:1px solid #bfc8d866;padding:12px 18px;border-radius:12px;max-width:85%;text-align:center;display:none;font-size:14px}
+.overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 25%,#304875f5,#101C3Bfa 72%);padding:18px}
+.panel{width:min(700px,100%);max-height:92vh;overflow:auto;border:1px solid #BFC8D8aa;border-radius:22px;padding:clamp(22px,5vw,42px);background:linear-gradient(145deg,#23365Ff2,#101C3Bfa);box-shadow:0 25px 90px #0008;text-align:center;position:relative}
+.eyebrow{font:11px Arial,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+h1{font-size:clamp(32px,7vw,62px);line-height:1.02;font-weight:normal;margin:18px 0 12px}
+h2{font-weight:normal;font-size:clamp(25px,5vw,40px);margin:12px 0}
+p{line-height:1.75;color:#DCE4F2}
+.letter{white-space:pre-line;text-align:left;line-height:1.9;font-size:clamp(15px,2.5vw,18px);max-width:560px;margin:22px auto;color:#F4F6FA}
+.primary{border:0;border-radius:99px;background:linear-gradient(100deg,#F4F6FA,#BFC8D8);color:#101C3B;padding:13px 23px;font-weight:bold;box-shadow:0 7px 24px #0003}
+.secondary{border:1px solid #BFC8D866;background:#17264a;color:#F4F6FA;border-radius:99px;padding:11px 17px}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+#modal,#photoModal,#endScreen{display:none;background:#081126e9;backdrop-filter:blur(12px)}
+#modal .panel{text-align:left}
+#modal label{display:block;margin:14px 0 6px;color:var(--gold);font:12px Arial,sans-serif;letter-spacing:.05em}
+#modal input,#modal textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #e8c78e66;background:#101C3B;color:#F4F6FA}
+#modal textarea{min-height:80px;resize:vertical}
+.tip{font:12px/1.6 Arial,sans-serif;color:#c8d2e5}
+#photoModal .panel{width:min(800px,100%);position:relative}
+#photoImage{max-width:100%;max-height:48vh;object-fit:contain;border-radius:8px;box-shadow:0 10px 35px #0008}
+#photoCaption{font-size:clamp(20px,4vw,30px);margin:14px 0 5px}
+#photoStory{white-space:pre-wrap;margin:0 auto;max-width:580px}
+.close{position:absolute;right:15px;top:15px}
+.heart{color:#BFC8D8;font-size:26px;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{transform:scale(1.18)}}
+#touchControls{position:absolute;bottom:85px;left:14px;display:none;pointer-events:auto;gap:6px;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px)}
+#touchControls button{border:1px solid #bfc8d855;background:#101c3be0;color:white;border-radius:12px;font-size:18px}
+#touchLook{position:absolute;right:12px;bottom:88px;color:#fff9;background:#101c3baa;padding:9px 12px;border-radius:10px;font:11px Arial,sans-serif;display:none;pointer-events:none}
+@media(max-width:700px){#touchControls{display:grid}#touchLook{display:block}.brand{max-width:48%}#topActions{max-width:58%}#topActions button{padding:8px 10px;font-size:12px}#help{bottom:14px;font-size:11px}}
+</style>
+</head>
+<body>
+<div id="hud">
+ <div class="brand" id="brand">Nuestro pequeño universo <small>2 de noviembre de 2026 · dos años de nosotros ♡</small></div>
+ <div id="topActions">
+  <button class="pill" id="viewBtn">◉ Tercera persona</button><button class="pill" id="soundBtn">♫ Música</button><button class="pill" id="editBtn">✎ Personalizar</button><button class="pill" id="endBtn">♡ Dedicatoria</button>
+ </div>
+ <div id="crosshair"></div><div id="toast"></div>
+ <div id="help">W A S D para caminar · Arrastra para mirar · V cambia la cámara · Haz clic en un cuadro</div>
+ <div id="touchControls"><button style="grid-column:2" data-key="w">▲</button><button style="grid-column:1;grid-row:2" data-key="a">◀</button><button style="grid-column:2;grid-row:2" data-key="s">▼</button><button style="grid-column:3;grid-row:2" data-key="d">▶</button></div>
+ <div id="touchLook">Desliza el dedo para mirar</div>
+</div>
+
+<div id="intro" class="overlay">
+ <div class="panel">
+  <div class="eyebrow">Para ti, María · 2 de noviembre de 2026</div>
+  <h1>Nuestro pequeño universo</h1><div class="heart">♡</div>
+  <div class="letter" id="welcomeLetter">María, mi amor:
+
+Hoy celebramos dos años de nuestra historia. Quise preparar un lugar donde cada foto, cada sonrisa y cada recuerdo tenga su propio espacio; un pequeño museo de todo lo bonito que hemos vivido.
+
+Gracias por llegar a mi vida, por las risas, la ternura y por hacer especiales tantos momentos cotidianos. No sé cuántas aventuras nos esperan, pero sí sé que quiero seguir descubriéndolas contigo.
+
+Este museo guarda recuerdos, pero lo que más atesoro es todo lo que todavía nos falta vivir. Ojalá, al recorrerlo, sientas un poquito de todo el amor con el que lo hice para ti.
+
+Feliz segundo aniversario, mi vida. Te volvería a elegir. ♡</div>
+  <div class="row"><button class="primary" id="enterBtn">Entrar a nuestro universo →</button><button class="secondary" id="editLetterBtn">Editar carta</button></div>
+ </div>
+</div>
+
+<div id="modal" class="overlay">
+ <div class="panel">
+  <div class="eyebrow">Hazlo nuestro</div><h2>Personaliza el museo</h2>
+  <p class="tip">Las fotos seleccionadas se guardan en esta sesión del navegador. Para que María las vea desde su celular mediante el QR, las imágenes deben quedar incluidas en el proyecto publicado antes de compartirlo.</p>
+  <label>Nombre del museo</label><input id="inTitle" value="Nuestro pequeño universo">
+  <label>Fecha</label><input id="inDate" value="2 de noviembre de 2026">
+  <label>Carta de bienvenida</label><textarea id="inIntro"></textarea>
+  <label>Dedicatoria final</label><textarea id="inFinal">María, gracias por estos dos años de amor, paciencia, risas y recuerdos. Si pudiera volver al principio, volvería a elegirte. Y si algo deseo para el futuro, es seguir construyendo nuestra historia contigo, un día a la vez. Te amo. ♡</textarea>
+  <label>Selecciona fotografías</label><input id="inPhotos" type="file" accept="image/*" multiple>
+  <p class="tip">Consejo: selecciona entre 8 y 18 fotos horizontales o verticales que cuenten su historia. Usa fotos que ambos estén cómodos compartiendo.</p>
+  <div class="row" style="justify-content:flex-start"><button class="primary" id="saveBtn">Aplicar cambios</button><button class="secondary" id="closeEdit">Cerrar</button></div>
+ </div>
+</div>
+
+<div id="photoModal" class="overlay">
+ <div class="panel"><button class="secondary close" id="closePhoto">✕</button><img id="photoImage" alt="Recuerdo de María y su enamorado"><div class="eyebrow" style="margin-top:18px">Un recuerdo de nosotros</div><div id="photoCaption">Un momento especial</div><p id="photoStory">Un instante de nuestra historia que merece quedarse para siempre.</p><div class="row"><button class="secondary" id="prevPhoto">← Anterior</button><button class="primary" id="nextPhoto">Siguiente →</button></div></div>
+</div>
+
+<div id="endScreen" class="overlay">
+ <div class="panel">
+  <div class="eyebrow">Y todavía nos queda tanta historia por vivir</div><h1 id="finalTitle">Feliz segundo aniversario, María ♡</h1><div class="heart">♡</div>
+  <p id="finalText">María, gracias por estos dos años de amor, paciencia, risas y recuerdos. Si pudiera volver al principio, volvería a elegirte. Y si algo deseo para el futuro, es seguir construyendo nuestra historia contigo, un día a la vez. Te amo. ♡</p>
+  <p>Con todo mi amor, hoy y siempre.</p><div class="row"><button class="primary" id="backBtn">Volver al museo</button></div>
+ </div>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+const state={title:'Nuestro pequeño universo',date:'2 de noviembre de 2026',
+ intro:document.getElementById('welcomeLetter').textContent,
+ final:'María, gracias por estos dos años de amor, paciencia, risas y recuerdos. Si pudiera volver al principio, volvería a elegirte. Y si algo deseo para el futuro, es seguir construyendo nuestra historia contigo, un día a la vez. Te amo. ♡',photos:[]};
+const $=id=>document.getElementById(id);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#101C3B');scene.fog=new THREE.Fog('#101C3B',22,62);
+const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,120);camera.position.set(0,2.0,9);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;document.body.prepend(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe4ecff,0x17264a,2.1));scene.add(new THREE.AmbientLight(0xcbd8f5,.7));
+function light(x,y,z,color,intensity,dist){let l=new THREE.PointLight(color,intensity,dist);l.position.set(x,y,z);scene.add(l)}
+light(0,5,0,0xc9d9ff,70,26);light(-6,4,-7,0x9dbaff,45,20);light(6,4,-14,0xe1e9ff,48,20);light(0,5,-24,0x9dbaff,52,22);light(0,4,-37,0xe1e9ff,45,18);
+const mat=(c,r=.75,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const wood=mat('#26385A'),dark=mat('#101C3B'),wall=mat('#23365F'),wall2=mat('#17264A'),cream=mat('#F4F6FA'),gold=mat('#BFC8D8',.38,.35);
+function block(w,h,d,x,y,z,material,parent=scene){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+block(18,.35,48,0,-.2,-17,wood);block(18,.35,48,0,7.2,-17,dark);
+block(.4,7.2,48,-9,3.4,-17,wall);block(.4,7.2,48,9,3.4,-17,wall);block(18,7.2,.4,0,3.4,-41,wall2);block(18,7.2,.4,0,3.4,7,wall2);
+block(.16,.35,48,-8.72,.25,-17,dark);block(.16,.35,48,8.72,.25,-17,dark);
+for(let z=-39;z<=5;z+=4){block(.12,.35,.18,-8.73,.45,z,gold);block(.12,.35,.18,8.73,.45,z,gold)}
+for(let z=-39;z<=5;z+=6)block(18,.12,.18,0,6.85,z,dark);
+block(4,.035,43,0,.0,-17,mat('#17264A'));for(let z=-38;z<=3;z+=1.2)block(3.85,.02,.025,0,.03,z,gold);
+for(const z of [-7,-17,-27,-37])for(const x of [-6.8,6.8]){block(.5,6.7,.5,x,3.3,z,cream);block(.75,.22,.75,x,.15,z,gold);block(.75,.22,.75,x,6.5,z,gold)}
+// Tres salas conectadas; los pasos centrales quedan abiertos.
+for (const z of [-9,-25]) {
+  block(5.6,5.9,.28,-6.2,3.0,z,wall2);
+  block(5.6,5.9,.28,6.2,3.0,z,wall2);
+  block(6.4,.16,.32,0,6.0,z,gold);
+}
+function roomPlaque(title,z){
+ const c=document.createElement('canvas');c.width=768;c.height=180;const x=c.getContext('2d');
+ x.fillStyle='#101C3B';x.fillRect(0,0,768,180);x.strokeStyle='#BFC8D8';x.lineWidth=5;x.strokeRect(8,8,752,164);
+ x.fillStyle='#F4F6FA';x.textAlign='center';x.font='34px Georgia';x.fillText(title,384,105);
+ const t=new THREE.CanvasTexture(c);const m=new THREE.MeshBasicMaterial({map:t,transparent:false});const sign=new THREE.Mesh(new THREE.PlaneGeometry(5.5,1.3),m);sign.position.set(0,4.7,z);scene.add(sign);
+}
+roomPlaque('El comienzo de nosotros',-8.72);
+roomPlaque('Nuestra historia',-24.72);
+roomPlaque('Nuestro próximo capítulo',-40.72);
+// Photo frames and textures
+const frames=[];
+function textureFor(photo){
+ const c=document.createElement('canvas');c.width=512;c.height=640;const ctx=c.getContext('2d');
+ ctx.fillStyle='#F4F6FA';ctx.fillRect(0,0,512,640);ctx.fillStyle='#101C3B';ctx.fillRect(24,24,464,592);
+ const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+ if(photo){const img=new Image();img.onload=()=>{ctx.fillStyle='#101C3B';ctx.fillRect(30,30,452,580);const sc=Math.max(452/img.width,580/img.height);const w=img.width*sc,h=img.height*sc;ctx.drawImage(img,(512-w)/2,(640-h)/2,w,h);tex.needsUpdate=true};img.src=photo}
+ else{let g=ctx.createLinearGradient(0,50,512,600);g.addColorStop(0,'#304875');g.addColorStop(1,'#101C3B');ctx.fillStyle=g;ctx.fillRect(36,36,440,568);ctx.fillStyle='#F4F6FA';ctx.textAlign='center';ctx.font='42px Georgia';ctx.fillText('Nuestro',256,275);ctx.fillText('recuerdo ♡',256,330);ctx.font='18px Georgia';ctx.fillText('Un pedacito de nuestra historia',256,390);tex.needsUpdate=true}
+ return tex;
+}
+function addFrame(x,y,z,side,i){let g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=side==='left'?Math.PI/2:-Math.PI/2;
+ g.add(new THREE.Mesh(new THREE.BoxGeometry(1.55,2.0,.14),gold));
+ let inset=new THREE.Mesh(new THREE.BoxGeometry(1.34,1.75,.06),dark);inset.position.z=.095;g.add(inset);
+ let material=new THREE.MeshBasicMaterial({map:textureFor(null)});let art=new THREE.Mesh(new THREE.PlaneGeometry(1.22,1.63),material);art.position.z=.13;g.add(art);
+ block(.78,.22,.07,0,-1.13,.12,cream,g);frames.push({mesh:art,material,index:i});scene.add(g)}
+// 12 cuadros: 2 en la primera sala, 8 en la segunda y 2 en la última.
+let n=0;for(const z of [-5]){addFrame(-8.68,3.7,z,'left',n++);addFrame(8.68,3.7,z,'right',n++)}
+for(const z of [-12,-16,-20,-23]){addFrame(-8.68,3.7,z,'left',n++);addFrame(8.68,3.7,z,'right',n++)}
+for(const z of [-31]){addFrame(-8.68,3.7,z,'left',n++);addFrame(8.68,3.7,z,'right',n++)}
+function signTexture(text){const c=document.createElement('canvas');c.width=1024;c.height=256;const x=c.getContext('2d');x.fillStyle='#101C3B';x.fillRect(0,0,1024,256);x.strokeStyle='#BFC8D8';x.lineWidth=8;x.strokeRect(15,15,994,226);x.fillStyle='#F4F6FA';x.textAlign='center';x.font='48px Georgia';x.fillText(text.slice(0,28),512,145);return new THREE.CanvasTexture(c)}
+const signMat=new THREE.MeshBasicMaterial({map:signTexture('Nuestro pequeño universo')});
+const keys={};let yaw=0,pitch=0,drag=false,lx=0,ly=0;
+// Avatar 3D estilizado: cabello oscuro, lentes redondos y ropa azul perla.
+const avatar=new THREE.Group();scene.add(avatar);avatar.position.set(0,0,4.6);
+const skin=mat('#d9a88e'),hair=mat('#171a29'),outfit=mat('#c3cfe3'),pants=mat('#293b60'),shoe=mat('#101C3B'),lens=mat('#101C3B',.3,.5);
+function ellipsoid(parent,material,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,18,14),material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o}
+ellipsoid(avatar,outfit,0,1.12,0,.34,.48,.23);ellipsoid(avatar,pants,0,.55,0,.29,.35,.2);
+for(const x of [-.13,.13]){const leg=block(.16,.48,.18,x,.24,0,shoe,avatar);}
+ellipsoid(avatar,skin,0,1.82,0,.27,.31,.25);ellipsoid(avatar,hair,0,2.02,-.035,.3,.34,.27);
+// Cabello largo cayendo detrás de los hombros.
+for(const x of [-.23,.23])ellipsoid(avatar,hair,x,1.66,-.08,.105,.43,.14);
+// Flequillo y lentes redondos visibles desde delante.
+ellipsoid(avatar,hair,-.12,2.06,.17,.15,.08,.08);ellipsoid(avatar,hair,.08,2.06,.17,.15,.08,.08);
+for(const x of [-.105,.105]){const ring=new THREE.Mesh(new THREE.TorusGeometry(.075,.012,8,24),lens);ring.position.set(x,1.84,.235);avatar.add(ring)}
+const bridge=block(.09,.018,.018,0,1.84,.245,lens,avatar);
+let thirdPerson=true;const followOffset=new THREE.Vector3(0,2.15,4.6);
+function toggleView(){thirdPerson=!thirdPerson;$('viewBtn').textContent=thirdPerson?'◉ Tercera persona':'◎ Primera persona';$('crosshair').style.display=thirdPerson?'none':'block';showToast(thirdPerson?'Cámara en tercera persona':'Cámara en primera persona')}
+$('viewBtn').onclick=toggleView;
+addEventListener('keydown',e=>{if(e.key.toLowerCase()==='v'&&!e.repeat)toggleView()});
+addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});
+renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointercancel',()=>drag=false);
+renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-1.05,1.05)});
+document.querySelectorAll('[data-key]').forEach(b=>{const d=e=>{e.preventDefault();keys[b.dataset.key]=true},u=e=>{e.preventDefault();keys[b.dataset.key]=false};b.addEventListener('pointerdown',d);b.addEventListener('pointerup',u);b.addEventListener('pointerleave',u);b.addEventListener('pointercancel',u)});
+const ray=new THREE.Raycaster(),center=new THREE.Vector2(0,0);let active=0;
+function showToast(t){$('toast').textContent=t;$('toast').style.display='block';clearTimeout(showToast.t);showToast.t=setTimeout(()=>$('toast').style.display='none',2800)}
+function showPhoto(i){active=(i+frames.length)%frames.length;const p=state.photos.length?state.photos[active%state.photos.length]:null;$('photoImage').src=p?.data||placeholder();$('photoCaption').textContent=p?.title||`Recuerdo ${active+1} ♡`;$('photoStory').textContent=p?.story||'Un instante de nuestra historia que merece quedarse para siempre.';$('photoModal').style.display='flex'}
+function placeholder(){const c=document.createElement('canvas');c.width=400;c.height=500;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,400,500);g.addColorStop(0,'#b96c65');g.addColorStop(1,'#38212c');x.fillStyle=g;x.fillRect(0,0,400,500);x.fillStyle='#F4F6FA';x.textAlign='center';x.font='38px Georgia';x.fillText('Nuestro',200,225);x.fillText('recuerdo ♡',200,275);return c.toDataURL()}
+function clickFrame(){ray.setFromCamera(center,camera);const hits=ray.intersectObjects(frames.map(f=>f.mesh));if(hits.length){let f=frames.find(v=>v.mesh===hits[0].object);showPhoto(f.index)}}
+renderer.domElement.addEventListener('click',clickFrame);
+$('closePhoto').onclick=()=>$('photoModal').style.display='none';$('prevPhoto').onclick=()=>showPhoto(active-1);$('nextPhoto').onclick=()=>showPhoto(active+1);
+$('enterBtn').onclick=()=>{$('intro').style.display='none';showToast('Bienvenida a nuestro pequeño universo, María ♡')};
+$('editBtn').onclick=()=>{$('modal').style.display='flex';$('inTitle').value=state.title;$('inDate').value=state.date;$('inIntro').value=state.intro;$('inFinal').value=state.final};
+$('editLetterBtn').onclick=()=>{$('modal').style.display='flex';$('inIntro').value=state.intro};
+$('closeEdit').onclick=()=>$('modal').style.display='none';
+$('saveBtn').onclick=async()=>{state.title=$('inTitle').value.trim()||state.title;state.date=$('inDate').value.trim();state.intro=$('inIntro').value.trim()||state.intro;state.final=$('inFinal').value.trim()||state.final;
+ $('brand').innerHTML=state.title+`<small>${state.date} · dos años de nosotros ♡</small>`;$('welcomeLetter').textContent=state.intro;$('finalTitle').textContent='Feliz segundo aniversario, María ♡';$('finalText').textContent=state.final;signMat.map=signTexture(state.title);signMat.map.needsUpdate=true;
+ const files=[...$('inPhotos').files].slice(0,18);if(files.length){state.photos=await Promise.all(files.map(file=>new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve({data:r.result,title:file.name.replace(/\.[^.]+$/,'').replace(/[_-]/g,' '),story:'Un recuerdo de nuestra historia ♡'});r.readAsDataURL(file)})));
+ frames.forEach((f,i)=>{f.material.map=textureFor(state.photos[i%state.photos.length].data);f.material.needsUpdate=true;f.index=i})}
+ $('modal').style.display='none';showToast('El museo se ha actualizado ♡')};
+$('endBtn').onclick=()=>$('endScreen').style.display='flex';$('backBtn').onclick=()=>$('endScreen').style.display='none';
+let audio=null,music=false;
+$('soundBtn').onclick=()=>{if(music){audio?.close();music=false;$('soundBtn').textContent='♫ Música';return}
+ try{audio=new (window.AudioContext||window.webkitAudioContext)();let master=audio.createGain();master.gain.value=.018;master.connect(audio.destination);[261.63,329.63,392,329.63,293.66,349.23,440,349.23].forEach((f,i)=>{let o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.07;o.connect(g);g.connect(master);o.start();});music=true;$('soundBtn').textContent='♫ Silenciar';showToast('Música ambiental activada ♡')}catch(e){showToast('No se pudo activar el audio en este navegador')}};
+function animate(){requestAnimationFrame(animate);
+ let f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),v=.085;
+ const moving=Math.abs(f)+Math.abs(side)>0;
+ if(moving){const len=Math.hypot(f,side)||1;f/=len;side/=len;avatar.position.x+=(Math.sin(yaw)*f+Math.cos(yaw)*side)*v;avatar.position.z+=(-Math.cos(yaw)*f+Math.sin(yaw)*side)*v;avatar.rotation.y=Math.atan2(Math.sin(yaw)*f+Math.cos(yaw)*side,-Math.cos(yaw)*f+Math.sin(yaw)*side);}
+ avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-7.7,7.7);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-39.0,5.3);
+ camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);
+ if(thirdPerson){const desired=new THREE.Vector3(avatar.position.x-Math.sin(yaw)*4.1,avatar.position.y+2.15,avatar.position.z+Math.cos(yaw)*4.1);camera.position.lerp(desired,.12);camera.lookAt(avatar.position.x,avatar.position.y+1.45,avatar.position.z);camera.rotation.order='YXZ';camera.rotation.y=yaw;camera.rotation.x=pitch*.65;}
+ else{const desired=new THREE.Vector3(avatar.position.x,avatar.position.y+1.72,avatar.position.z);camera.position.lerp(desired,.25);camera.rotation.order='YXZ';camera.rotation.set(pitch,yaw,0);}
+ renderer.render(scene,camera)}
+animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body>
+</html>
